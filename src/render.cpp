@@ -62,7 +62,7 @@ glm::vec3 Renderer::cast_ray(glm::vec3 orig, glm::vec3 dir)
     glm::vec3 hit, norm;
     const Material *mat;
 
-    if (!m_sc.cast_ray_spheres(orig, dir, &hit, &norm, &mat))
+    if (!m_sc.cast_ray(orig, dir, &hit, &norm, &mat))
         return glm::vec3(0.f, 0.f, 0.f);
 
     glm::vec3 res(0.f);

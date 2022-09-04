@@ -19,7 +19,7 @@ void Scene::add_light(const Light &l)
     m_lights.emplace_back(l);
 }
 
-bool Scene::cast_ray_spheres(glm::vec3 orig, glm::vec3 dir, glm::vec3 *hit, glm::vec3 *norm, const Material **mat)
+bool Scene::cast_ray(glm::vec3 orig, glm::vec3 dir, glm::vec3 *hit, glm::vec3 *norm, const Material **mat)
 {
     float nearest = 1000.f;
 
