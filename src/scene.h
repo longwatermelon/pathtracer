@@ -22,4 +22,5 @@ private:
     std::vector<Light> m_lights;
 
     float m_floor_y{ 2.f };
+    Material m_floor_mat;
 };
