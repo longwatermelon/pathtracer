@@ -60,9 +60,9 @@ void Renderer::cast_rays(std::vector<glm::vec3> &frame)
 glm::vec3 Renderer::cast_ray(glm::vec3 orig, glm::vec3 dir)
 {
     glm::vec3 hit, norm;
-    Sphere *s = nullptr;
+    const Material *mat;
 
-    if (!m_sc.cast_ray_spheres(orig, dir, &hit, &norm, &s))
+    if (!m_sc.cast_ray_spheres(orig, dir, &hit, &norm, &mat))
         return glm::vec3(0.f, 0.f, 0.f);
 
     glm::vec3 res(0.f);
@@ -70,18 +70,18 @@ glm::vec3 Renderer::cast_ray(glm::vec3 orig, glm::vec3 dir)
     for (const auto &light : m_sc.lights())
     {
         // ambient
-        glm::vec3 ambient = light.ambient * s->mat().col;
+        glm::vec3 ambient = light.ambient * mat->col;
 
         // diffuse
         glm::vec3 ldir = glm::normalize(light.pos - hit);
         float diff = std::max(glm::dot(norm, ldir), 0.f);
-        glm::vec3 diffuse = light.diffuse * diff * s->mat().col;
+        glm::vec3 diffuse = light.diffuse * diff * mat->col;
 
         // specular
         glm::vec3 vdir = glm::normalize(orig - hit);
         glm::vec3 refdir = glm::reflect(-ldir, norm);
-        float spec = std::pow(std::max(glm::dot(vdir, refdir), 0.f), s->mat().shininess);
-        glm::vec3 specular = light.specular * spec * s->mat().col;
+        float spec = std::pow(std::max(glm::dot(vdir, refdir), 0.f), mat->shininess);
+        glm::vec3 specular = light.specular * spec * mat->col;
 
         res += ambient + diffuse + specular;
     }
