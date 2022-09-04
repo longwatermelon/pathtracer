@@ -13,7 +13,8 @@ Renderer::Renderer(int w, int h)
 {
     Material mat(glm::vec3(1.f, 0.f, 0.f), 50.f);
     m_sc.add_sphere(Sphere(glm::vec3(5.f, 0.f, 0.f), 1.f, mat));
-    m_sc.add_light(Light(glm::vec3(5.f, -5.f, 0.f), glm::vec3(.2f, .2f, .2f), glm::vec3(.5f, .5f, .5f), glm::vec3(1.f, 1.f, 1.f)));
+
+    m_sc.add_light(Light(glm::vec3(5.f, -5.f, 0.f), glm::vec3(.2f, .2f, .2f), glm::vec3(.5f, .5f, .5f), glm::vec3(.8f, .8f, .8f)));
 }
 
 Renderer::~Renderer()
@@ -80,9 +81,7 @@ glm::vec3 Renderer::cast_ray(glm::vec3 orig, glm::vec3 dir)
         if (m_sc.cast_ray(shadow_orig, shadow_dir, &shadow_hit, 0, 0))
         {
             if (glm::distance(shadow_hit, shadow_orig) < glm::distance(light.pos, shadow_orig))
-            {
                 continue;
-            }
         }
 
         // diffuse
