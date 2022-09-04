@@ -13,7 +13,7 @@ Renderer::Renderer(int w, int h)
 {
     Material mat(glm::vec3(1.f, 0.f, 0.f), 50.f);
     m_sc.add_sphere(Sphere(glm::vec3(5.f, 0.f, 0.f), 1.f, mat));
-    m_sc.add_light(Light(glm::vec3(0.f, -2.f, 2.f), glm::vec3(.2f, .2f, .2f), glm::vec3(.5f, .5f, .5f), glm::vec3(1.f, 1.f, 1.f)));
+    m_sc.add_light(Light(glm::vec3(5.f, -5.f, 0.f), glm::vec3(.2f, .2f, .2f), glm::vec3(.5f, .5f, .5f), glm::vec3(1.f, 1.f, 1.f)));
 }
 
 Renderer::~Renderer()
@@ -60,9 +60,9 @@ void Renderer::cast_rays(std::vector<glm::vec3> &frame)
 glm::vec3 Renderer::cast_ray(glm::vec3 orig, glm::vec3 dir)
 {
     glm::vec3 hit, norm;
-    const Sphere *s = nullptr;
+    Sphere *s = nullptr;
 
-    if ((s = m_sc.cast_ray_spheres(orig, dir, &hit, &norm)) == nullptr)
+    if (!m_sc.cast_ray_spheres(orig, dir, &hit, &norm, &s))
         return glm::vec3(0.f, 0.f, 0.f);
 
     glm::vec3 res(0.f);
