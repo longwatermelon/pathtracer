@@ -14,11 +14,17 @@ void Scene::add_sphere(const Sphere &s)
     m_spheres.emplace_back(s);
 }
 
-bool Scene::cast_ray_spheres(glm::vec3 orig, glm::vec3 dir, glm::vec3 *hit, glm::vec3 *norm, const Sphere *s)
+void Scene::add_light(const Light &l)
+{
+    m_lights.emplace_back(l);
+}
+
+const Sphere *Scene::cast_ray_spheres(glm::vec3 orig, glm::vec3 dir, glm::vec3 *hit, glm::vec3 *norm)
 {
     float nearest = 1000.f;
+    Sphere *res = nullptr;
 
-    for (const auto &s : m_spheres)
+    for (auto &s : m_spheres)
     {
         float t;
 
@@ -27,8 +33,9 @@ bool Scene::cast_ray_spheres(glm::vec3 orig, glm::vec3 dir, glm::vec3 *hit, glm:
             nearest = t;
             if (hit) *hit = orig + dir * t;
             if (norm) *norm = glm::normalize(*hit - s.center());
+            res = &s;
         }
     }
 
-    return nearest < 1000.f;
+    return res;
 }

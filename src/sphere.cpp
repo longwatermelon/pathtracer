@@ -1,8 +1,8 @@
 #include "sphere.h"
 #include <glm/glm.hpp>
 
-Sphere::Sphere(glm::vec3 c, float r)
-    : m_center(c), m_r(r)
+Sphere::Sphere(glm::vec3 c, float r, const Material &mat)
+    : m_center(c), m_r(r), m_mat(mat)
 {
 }
 

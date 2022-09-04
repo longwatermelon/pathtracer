@@ -1,5 +1,9 @@
 #include "render.h"
+#include "light.h"
 #include <fstream>
+#include <glm/exponential.hpp>
+#include <glm/fwd.hpp>
+#include <glm/geometric.hpp>
 #include <vector>
 #include <fmt/format.h>
 #include <glm/glm.hpp>
@@ -7,7 +11,9 @@
 Renderer::Renderer(int w, int h)
     : m_w(w), m_h(h)
 {
-    m_sc.add_sphere(Sphere(glm::vec3(5.f, 0.f, 0.f), 1.f));
+    Material mat(glm::vec3(1.f, 0.f, 0.f), 50.f);
+    m_sc.add_sphere(Sphere(glm::vec3(5.f, 0.f, 0.f), 1.f, mat));
+    m_sc.add_light(Light(glm::vec3(0.f, -2.f, 2.f), glm::vec3(.2f, .2f, .2f), glm::vec3(.5f, .5f, .5f), glm::vec3(1.f, 1.f, 1.f)));
 }
 
 Renderer::~Renderer()
@@ -54,10 +60,31 @@ void Renderer::cast_rays(std::vector<glm::vec3> &frame)
 glm::vec3 Renderer::cast_ray(glm::vec3 orig, glm::vec3 dir)
 {
     glm::vec3 hit, norm;
-    const Sphere *s;
+    const Sphere *s = nullptr;
 
-    if (!m_sc.cast_ray_spheres(orig, dir, &hit, &norm, s))
+    if ((s = m_sc.cast_ray_spheres(orig, dir, &hit, &norm)) == nullptr)
         return glm::vec3(0.f, 0.f, 0.f);
 
-    return glm::vec3(1.f, 0.f, 0.f);
+    glm::vec3 res(0.f);
+
+    for (const auto &light : m_sc.lights())
+    {
+        // ambient
+        glm::vec3 ambient = light.ambient * s->mat().col;
+
+        // diffuse
+        glm::vec3 ldir = glm::normalize(light.pos - hit);
+        float diff = std::max(glm::dot(norm, ldir), 0.f);
+        glm::vec3 diffuse = light.diffuse * diff * s->mat().col;
+
+        // specular
+        glm::vec3 vdir = glm::normalize(orig - hit);
+        glm::vec3 refdir = glm::reflect(-ldir, norm);
+        float spec = std::pow(std::max(glm::dot(vdir, refdir), 0.f), s->mat().shininess);
+        glm::vec3 specular = light.specular * spec * s->mat().col;
+
+        res += ambient + diffuse + specular;
+    }
+
+    return res;
 }
