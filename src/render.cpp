@@ -70,7 +70,20 @@ glm::vec3 Renderer::cast_ray(glm::vec3 orig, glm::vec3 dir)
     for (const auto &light : m_sc.lights())
     {
         // ambient
-        glm::vec3 ambient = light.ambient * mat->col;
+        res += light.ambient * mat->col;
+
+        // shadows (If shadow, only show ambient)
+        glm::vec3 shadow_orig = hit + norm / 1e3f;
+        glm::vec3 shadow_dir = glm::normalize(light.pos - shadow_orig);
+
+        glm::vec3 shadow_hit;
+        if (m_sc.cast_ray(shadow_orig, shadow_dir, &shadow_hit, 0, 0))
+        {
+            if (glm::distance(shadow_hit, shadow_orig) < glm::distance(light.pos, shadow_orig))
+            {
+                continue;
+            }
+        }
 
         // diffuse
         glm::vec3 ldir = glm::normalize(light.pos - hit);
@@ -83,7 +96,7 @@ glm::vec3 Renderer::cast_ray(glm::vec3 orig, glm::vec3 dir)
         float spec = std::pow(std::max(glm::dot(vdir, refdir), 0.f), mat->shininess);
         glm::vec3 specular = light.specular * spec * mat->col;
 
-        res += ambient + diffuse + specular;
+        res += diffuse + specular;
     }
 
     return res;
