@@ -16,11 +16,12 @@ public:
     bool cast_ray(glm::vec3 orig, glm::vec3 dir, glm::vec3 *hit, glm::vec3 *norm, const Material **mat);
 
     const std::vector<Light> &lights() const { return m_lights; }
+    float floor_y() const { return m_floor_y; }
 
 private:
     std::vector<Sphere> m_spheres;
     std::vector<Light> m_lights;
 
-    float m_floor_y{ 2.f };
+    float m_floor_y{ 3.f };
     Material m_floor_mat;
 };

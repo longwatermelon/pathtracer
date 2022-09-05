@@ -44,11 +44,14 @@ bool Scene::cast_ray(glm::vec3 orig, glm::vec3 dir, glm::vec3 *hit, glm::vec3 *n
     if (end.y >= m_floor_y)
     {
         if (mat) *mat = &m_floor_mat;
-        *norm = glm::vec3(0.f, -1.f, 0.f);
+        if (norm) *norm = glm::vec3(0.f, -1.f, 0.f);
 
-        hit->y = m_floor_y;
-        hit->x = end.x / end.y * m_floor_y;
-        hit->z = end.z / end.y * m_floor_y;
+        if (hit)
+        {
+            hit->y = m_floor_y;
+            hit->x = end.x / end.y * m_floor_y;
+            hit->z = end.z / end.y * m_floor_y;
+        }
 
         return true;
     }

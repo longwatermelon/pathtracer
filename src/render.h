@@ -22,6 +22,7 @@ public:
     glm::vec3 cast_ray(glm::vec3 orig, glm::vec3 dir);
 
     glm::vec3 phong(const RayIntersection &data);
+    glm::vec3 volumetric(glm::vec3 orig, glm::vec3 dir);
 
 private:
     int m_w{ 1000 }, m_h{ 1000 };

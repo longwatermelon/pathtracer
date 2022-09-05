@@ -12,7 +12,7 @@ Sphere::~Sphere()
 
 bool Sphere::ray_intersect(glm::vec3 orig, glm::vec3 dir, float *t) const
 {
-    float t1, t2;
+    float t1 = 0.f, t2 = 0.f;
     ray_intersect(orig, dir, &t1, &t2);
 
     if (t1 <= 1e-4f) return false;

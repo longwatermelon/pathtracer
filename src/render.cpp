@@ -1,5 +1,6 @@
 #include "render.h"
 #include "light.h"
+#include <cstdio>
 #include <fstream>
 #include <glm/exponential.hpp>
 #include <glm/fwd.hpp>
@@ -12,9 +13,9 @@ Renderer::Renderer(int w, int h)
     : m_w(w), m_h(h)
 {
     Material mat(glm::vec3(1.f, 0.f, 0.f), 50.f);
-    m_sc.add_sphere(Sphere(glm::vec3(5.f, 0.f, 0.f), 1.f, mat));
+    m_sc.add_sphere(Sphere(glm::vec3(10.f, 0.f, 0.f), 1.f, mat));
 
-    m_sc.add_light(Light(glm::vec3(5.f, -5.f, 0.f), glm::vec3(.2f, .2f, .2f), glm::vec3(.5f, .5f, .5f), glm::vec3(.8f, .8f, .8f)));
+    m_sc.add_light(Light(glm::vec3(8.f, -6.f, 2.f), glm::vec3(.2f, .2f, .2f), glm::vec3(.5f, .5f, .5f), glm::vec3(.8f, .8f, .8f)));
 }
 
 Renderer::~Renderer()
@@ -55,6 +56,12 @@ void Renderer::cast_rays(std::vector<glm::vec3> &frame)
             glm::vec3 dir = glm::normalize(glm::vec3(1.f, va, ha));
             frame[y * m_w + z] = cast_ray(glm::vec3(0.f, 0.f, 0.f), dir);
         }
+
+        if (y % 10 == 0)
+        {
+            fmt::print("\rFinished {}/{} rows", y, m_h);
+            std::fflush(stdout);
+        }
     }
 }
 
@@ -65,9 +72,9 @@ glm::vec3 Renderer::cast_ray(glm::vec3 orig, glm::vec3 dir)
     data.dir = dir;
 
     if (!m_sc.cast_ray(orig, dir, &data.hit, &data.norm, &data.mat))
-        return glm::vec3(0.f, 0.f, 0.f);
+        return volumetric(orig, dir);
 
-    return phong(data);
+    return phong(data) + volumetric(orig, dir);
 }
 
 glm::vec3 Renderer::phong(const RayIntersection &data)
@@ -102,6 +109,34 @@ glm::vec3 Renderer::phong(const RayIntersection &data)
         glm::vec3 specular = light.specular * spec * data.mat->col;
 
         res += diffuse + specular;
+    }
+
+    return res;
+}
+
+glm::vec3 Renderer::volumetric(glm::vec3 orig, glm::vec3 dir)
+{
+    glm::vec3 res(0.f);
+
+    glm::vec3 pos = orig;
+    for (size_t i = 0; i < 300; ++i)
+    {
+        pos += dir / 15.f;
+        if (pos.y >= m_sc.floor_y())
+            break;
+
+        for (const auto &light : m_sc.lights())
+        {
+            float dist = glm::distance(light.pos, pos);
+            float attn = 1.f / (dist * dist);
+
+            // Detect if under shadow
+            glm::vec3 shadow_dir = glm::normalize(light.pos - pos);
+            if (!m_sc.cast_ray(pos, shadow_dir, 0, 0, 0))
+                res += glm::vec3(.05f, .05f, .05f) * attn;
+            else
+                res -= glm::vec3(.2f, .2f, .2f) / 100.f;
+        }
     }
 
     return res;
