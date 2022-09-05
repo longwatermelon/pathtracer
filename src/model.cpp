@@ -91,9 +91,9 @@ std::unique_ptr<Mesh> Model::process_mesh(aiMesh *mesh, const aiScene *sc)
         v.pos.y = mesh->mVertices[i].y;
         v.pos.z = mesh->mVertices[i].z;
 
-        v.norm.x = mesh->mVertices[i].x;
-        v.norm.y = mesh->mVertices[i].y;
-        v.norm.z = mesh->mVertices[i].z;
+        v.norm.x = mesh->mNormals[i].x;
+        v.norm.y = mesh->mNormals[i].y;
+        v.norm.z = mesh->mNormals[i].z;
         v.norm = glm::normalize(v.norm);
 
         verts.emplace_back(v);

@@ -11,13 +11,13 @@
 #include <glm/glm.hpp>
 
 Renderer::Renderer(int w, int h)
-    : m_w(w), m_h(h), m_mesh_mat(glm::vec3(0.f, 0.f, 1.f), 50.f)
+    : m_w(w), m_h(h), m_mesh_mat(glm::vec3(.6f, 1.f, .96f), 90.f)
 {
     Material mat(glm::vec3(1.f, 0.f, 0.f), 50.f);
-    // m_sc.add_sphere(Sphere(glm::vec3(10.f, 0.f, 0.f), 1.f, mat));
-    m_sc.add_model(Model(glm::vec3(10.f, 2.f, -2.f), glm::vec3(0.f), "res/cube.obj", &m_mesh_mat));
+    // m_sc.add_sphere(Sphere(glm::vec3(7.f, 0.f, 0.f), 1.f, mat));
+    m_sc.add_model(Model(glm::vec3(7.f, 0.f, 0.f), glm::vec3(0.f), "res/cube.obj", &m_mesh_mat));
 
-    m_sc.add_light(Light(glm::vec3(8.f, -4.f, 2.f), glm::vec3(1.f, 1.f, .7f), 1.f));
+    m_sc.add_light(Light(glm::vec3(5.f, -3.f, 2.f), glm::vec3(1.f, 1.f, 1.f), 1.f));
 }
 
 Renderer::~Renderer()
@@ -83,8 +83,8 @@ glm::vec3 Renderer::phong(const RayIntersection &data)
     glm::vec3 res(0.f);
 
     float l_ambient = .2f;
-    float l_diffuse = .5f;
-    float l_specular = .8f;
+    float l_diffuse = .7f;
+    float l_specular = 1.f;
 
     for (const auto &light : m_sc.lights())
     {

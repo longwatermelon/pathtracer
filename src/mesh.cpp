@@ -1,6 +1,7 @@
 #include "mesh.h"
 #include "util.h"
 #include <array>
+#include <glm/geometric.hpp>
 #include <glm/gtx/intersect.hpp>
 
 Mesh::Mesh(const std::vector<Vertex> &verts, const std::vector<unsigned int> &indices)
@@ -23,6 +24,9 @@ bool Mesh::ray_intersect(const Ray &ray, Triangle *tri, glm::vec2 *bary, float *
             m_verts[m_indices[i + 1]],
             m_verts[m_indices[i + 2]]
         };
+
+        // if (glm::cross(verts[2].pos - verts[0].pos, verts[1].pos - verts[0].pos).x < 0.f)
+        //     continue;
 
         verts[0].pos += m_pos;
         verts[1].pos += m_pos;
