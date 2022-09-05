@@ -1,4 +1,5 @@
 #include "scene.h"
+#include "util.h"
 #include <iostream>
 #include <glm/glm.hpp>
 
@@ -28,7 +29,7 @@ void Scene::add_light(const Light &l)
 
 bool Scene::cast_ray(const Ray &ray, glm::vec3 *hit, glm::vec3 *norm, const Material **mat)
 {
-    float nearest = 1000.f;
+    float nearest = RAY_FARTHEST;
 
     for (auto &s : m_spheres)
     {
@@ -40,6 +41,22 @@ bool Scene::cast_ray(const Ray &ray, glm::vec3 *hit, glm::vec3 *norm, const Mate
             if (hit) *hit = ray.forward(t);
             if (norm) *norm = glm::normalize(*hit - s.center());
             if (mat) *mat = &s.mat();
+        }
+    }
+
+    for (const auto &m : m_models)
+    {
+        float t;
+        glm::vec2 bary;
+        Triangle tri;
+
+        if (m.ray_intersect(ray, &tri, &bary, &t) && t < nearest)
+        {
+            nearest = t;
+            if (hit) *hit = ray.forward(t);
+            if (mat) *mat = m.mat();
+            if (norm) *norm = (1 - bary[0] - bary[1]) * tri.verts[0].norm + bary[0] * tri.verts[1].norm + bary[1] * tri.verts[2].norm;
+            // if (norm) *norm = tri.verts[1].norm;
         }
     }
 
@@ -61,5 +78,5 @@ bool Scene::cast_ray(const Ray &ray, glm::vec3 *hit, glm::vec3 *norm, const Mate
         return true;
     }
 
-    return nearest < 1000.f;
+    return nearest < RAY_FARTHEST;
 }

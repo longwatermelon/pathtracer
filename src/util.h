@@ -1,5 +1,13 @@
 #pragma once
+#include <array>
 #include <glm/glm.hpp>
+
+#define RAY_FARTHEST 1000.f
+
+struct Vertex
+{
+    glm::vec3 pos, norm;
+};
 
 struct Ray
 {
@@ -13,4 +21,13 @@ struct Ray
     }
 
     glm::vec3 orig{ 0.f }, dir{ 0.f };
+};
+
+struct Triangle
+{
+    Triangle() = default;
+    Triangle(Vertex a, Vertex b, Vertex c)
+        : verts{ a, b, c } {}
+
+    std::array<Vertex, 3> verts;
 };

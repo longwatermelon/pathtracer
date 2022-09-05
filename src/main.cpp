@@ -4,7 +4,7 @@
 
 int main(int argc, char **argv)
 {
-    Renderer r(1000, 1000);
+    Renderer r(300, 300);
     r.render("out.ppm");
 
     std::system("feh out.ppm");

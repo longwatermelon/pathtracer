@@ -1,4 +1,5 @@
 #include "model.h"
+#include "util.h"
 #include <bits/types/FILE.h>
 #include <stdexcept>
 #include <assimp/Importer.hpp>
@@ -6,9 +7,10 @@
 #include <assimp/postprocess.h>
 #include <assimp/material.h>
 #include <fmt/format.h>
+#include <glm/gtx/intersect.hpp>
 
 Model::Model(glm::vec3 pos, glm::vec3 rot, const std::string &obj, const Material *mat)
-    : m_pos(pos), m_rot(rot), m_mat(mat)
+    : m_mat(mat)
 {
     Assimp::Importer im;
     const aiScene *sc = im.ReadFile(obj, aiProcess_Triangulate | aiProcess_FlipUVs);
@@ -19,10 +21,48 @@ Model::Model(glm::vec3 pos, glm::vec3 rot, const std::string &obj, const Materia
     }
 
     process_node(sc->mRootNode, sc);
+
+    move(pos);
+    rotate(rot);
 }
 
 Model::~Model()
 {
+}
+
+bool Model::ray_intersect(const Ray &ray, Triangle *tri, glm::vec2 *bary, float *t) const
+{
+    float nearest = RAY_FARTHEST;
+
+    for (const auto &m : m_meshes)
+    {
+        float dist;
+        glm::vec2 b;
+        Triangle tr;
+        if (m->ray_intersect(ray, &tr, &b, &dist) && dist < nearest)
+        {
+            nearest = dist;
+            if (bary) *bary = b;
+            if (tri) *tri = tr;
+        }
+    }
+
+    if (t) *t = nearest;
+    return nearest < RAY_FARTHEST;
+}
+
+void Model::move(glm::vec3 dir)
+{
+    m_pos += dir;
+    for (auto &m : m_meshes)
+        m->move(dir);
+}
+
+void Model::rotate(glm::vec3 rot)
+{
+    m_rot += rot;
+    for (auto &m : m_meshes)
+        m->rotate(rot);
 }
 
 void Model::process_node(aiNode *node, const aiScene *sc)
@@ -54,6 +94,7 @@ std::unique_ptr<Mesh> Model::process_mesh(aiMesh *mesh, const aiScene *sc)
         v.norm.x = mesh->mVertices[i].x;
         v.norm.y = mesh->mVertices[i].y;
         v.norm.z = mesh->mVertices[i].z;
+        v.norm = glm::normalize(v.norm);
 
         verts.emplace_back(v);
     }
