@@ -14,8 +14,8 @@ Renderer::Renderer(int w, int h)
     : m_w(w), m_h(h), m_mesh_mat(glm::vec3(.6f, 1.f, .96f), 90.f)
 {
     Material mat(glm::vec3(1.f, 0.f, 0.f), 50.f);
-    // m_sc.add_sphere(Sphere(glm::vec3(7.f, 0.f, 0.f), 1.f, mat));
-    m_sc.add_model(Model(glm::vec3(7.f, 0.f, 0.f), glm::vec3(0.f), "res/cube.obj", &m_mesh_mat));
+    m_sc.add_sphere(Sphere(glm::vec3(7.f, 0.f, 0.f), 1.f, mat));
+    // m_sc.add_model(Model(glm::vec3(7.f, 0.f, 0.f), glm::vec3(0.f), "res/cube.obj", &m_mesh_mat));
 
     m_sc.add_light(Light(glm::vec3(5.f, -3.f, 2.f), glm::vec3(1.f, 1.f, 1.f), 1.f));
 }
@@ -28,20 +28,7 @@ void Renderer::render(const std::string &out)
 {
     std::vector<glm::vec3> frame(m_w * m_h);
     cast_rays(frame);
-
-    std::ofstream ofs(out);
-    ofs << fmt::format("P3\n{} {}\n255\n", m_w, m_h);
-
-    for (int i = 0; i < m_w * m_h; ++i)
-    {
-        int r = std::max(std::min(frame[i].x, 1.f), 0.f) * 255.f;
-        int g = std::max(std::min(frame[i].y, 1.f), 0.f) * 255.f;
-        int b = std::max(std::min(frame[i].z, 1.f), 0.f) * 255.f;
-
-        ofs << fmt::format("{} {} {}\n", r, g, b);
-    }
-
-    ofs.close();
+    write(frame, out);
 }
 
 void Renderer::cast_rays(std::vector<glm::vec3> &frame)
@@ -76,6 +63,23 @@ glm::vec3 Renderer::cast_ray(const Ray &ray)
         return volumetric(ray);
 
     return phong(data) + volumetric(ray);
+}
+
+void Renderer::write(const std::vector<glm::vec3> &frame, const std::string &out)
+{
+    std::ofstream ofs(out);
+    ofs << fmt::format("P3\n{} {}\n255\n", m_w, m_h);
+
+    for (int i = 0; i < m_w * m_h; ++i)
+    {
+        int r = std::max(std::min(frame[i].x, 1.f), 0.f) * 255.f;
+        int g = std::max(std::min(frame[i].y, 1.f), 0.f) * 255.f;
+        int b = std::max(std::min(frame[i].z, 1.f), 0.f) * 255.f;
+
+        ofs << fmt::format("{} {} {}\n", r, g, b);
+    }
+
+    ofs.close();
 }
 
 glm::vec3 Renderer::phong(const RayIntersection &data)
