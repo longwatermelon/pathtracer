@@ -1,6 +1,7 @@
 #pragma once
 #include "sphere.h"
 #include "light.h"
+#include "model.h"
 #include <vector>
 
 class Scene
@@ -10,6 +11,7 @@ public:
     ~Scene();
 
     void add_sphere(const Sphere &s);
+    void add_model(Model m);
     void add_light(const Light &l);
 
     // Cast ray considering all objects in scene
@@ -20,6 +22,7 @@ public:
 
 private:
     std::vector<Sphere> m_spheres;
+    std::vector<Model> m_models;
     std::vector<Light> m_lights;
 
     float m_floor_y{ 3.f };

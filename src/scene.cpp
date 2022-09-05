@@ -16,6 +16,11 @@ void Scene::add_sphere(const Sphere &s)
     m_spheres.emplace_back(s);
 }
 
+void Scene::add_model(Model m)
+{
+    m_models.emplace_back(std::move(m));
+}
+
 void Scene::add_light(const Light &l)
 {
     m_lights.emplace_back(l);
