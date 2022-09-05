@@ -60,21 +60,27 @@ void Renderer::cast_rays(std::vector<glm::vec3> &frame)
 
 glm::vec3 Renderer::cast_ray(glm::vec3 orig, glm::vec3 dir)
 {
-    glm::vec3 hit, norm;
-    const Material *mat;
+    RayIntersection data;
+    data.orig = orig;
+    data.dir = dir;
 
-    if (!m_sc.cast_ray(orig, dir, &hit, &norm, &mat))
+    if (!m_sc.cast_ray(orig, dir, &data.hit, &data.norm, &data.mat))
         return glm::vec3(0.f, 0.f, 0.f);
 
+    return phong(data);
+}
+
+glm::vec3 Renderer::phong(const RayIntersection &data)
+{
     glm::vec3 res(0.f);
 
     for (const auto &light : m_sc.lights())
     {
         // ambient
-        res += light.ambient * mat->col;
+        res += light.ambient * data.mat->col;
 
         // shadows (If shadow, only show ambient)
-        glm::vec3 shadow_orig = hit + norm / 1e3f;
+        glm::vec3 shadow_orig = data.hit + data.norm / 1e3f;
         glm::vec3 shadow_dir = glm::normalize(light.pos - shadow_orig);
 
         glm::vec3 shadow_hit;
@@ -85,15 +91,15 @@ glm::vec3 Renderer::cast_ray(glm::vec3 orig, glm::vec3 dir)
         }
 
         // diffuse
-        glm::vec3 ldir = glm::normalize(light.pos - hit);
-        float diff = std::max(glm::dot(norm, ldir), 0.f);
-        glm::vec3 diffuse = light.diffuse * diff * mat->col;
+        glm::vec3 ldir = glm::normalize(light.pos - data.hit);
+        float diff = std::max(glm::dot(data.norm, ldir), 0.f);
+        glm::vec3 diffuse = light.diffuse * diff * data.mat->col;
 
         // specular
-        glm::vec3 vdir = glm::normalize(orig - hit);
-        glm::vec3 refdir = glm::reflect(-ldir, norm);
-        float spec = std::pow(std::max(glm::dot(vdir, refdir), 0.f), mat->shininess);
-        glm::vec3 specular = light.specular * spec * mat->col;
+        glm::vec3 vdir = glm::normalize(data.orig - data.hit);
+        glm::vec3 refdir = glm::reflect(-ldir, data.norm);
+        float spec = std::pow(std::max(glm::dot(vdir, refdir), 0.f), data.mat->shininess);
+        glm::vec3 specular = light.specular * spec * data.mat->col;
 
         res += diffuse + specular;
     }

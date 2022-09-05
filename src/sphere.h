@@ -9,6 +9,7 @@ public:
     ~Sphere();
 
     bool ray_intersect(glm::vec3 orig, glm::vec3 dir, float *t) const;
+    bool ray_intersect(glm::vec3 orig, glm::vec3 dir, float *t1, float *t2) const;
 
     glm::vec3 center() const { return m_center; }
     float radius() const { return m_r; }

@@ -2,6 +2,14 @@
 #include "scene.h"
 #include <string>
 
+struct RayIntersection
+{
+    glm::vec3 orig, dir;
+    glm::vec3 hit, norm;
+
+    const Material *mat;
+};
+
 class Renderer
 {
 public:
@@ -12,6 +20,8 @@ public:
 
     void cast_rays(std::vector<glm::vec3> &frame);
     glm::vec3 cast_ray(glm::vec3 orig, glm::vec3 dir);
+
+    glm::vec3 phong(const RayIntersection &data);
 
 private:
     int m_w{ 1000 }, m_h{ 1000 };
