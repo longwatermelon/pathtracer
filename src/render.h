@@ -27,4 +27,6 @@ public:
 private:
     int m_w{ 1000 }, m_h{ 1000 };
     Scene m_sc;
+
+    Material m_mesh_mat;
 };

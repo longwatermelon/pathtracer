@@ -7,8 +7,8 @@
 #include <assimp/material.h>
 #include <fmt/format.h>
 
-Model::Model(glm::vec3 pos, glm::vec3 rot, const std::string &obj)
-    : m_pos(pos), m_rot(rot)
+Model::Model(glm::vec3 pos, glm::vec3 rot, const std::string &obj, const Material *mat)
+    : m_pos(pos), m_rot(rot), m_mat(mat)
 {
     Assimp::Importer im;
     const aiScene *sc = im.ReadFile(obj, aiProcess_Triangulate | aiProcess_FlipUVs);

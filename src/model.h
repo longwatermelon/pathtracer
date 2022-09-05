@@ -1,5 +1,6 @@
 #pragma once
 #include "mesh.h"
+#include "light.h"
 #include <string>
 #include <memory>
 #include <glm/glm.hpp>
@@ -8,7 +9,7 @@
 class Model
 {
 public:
-    Model(glm::vec3 pos, glm::vec3 rot, const std::string &obj);
+    Model(glm::vec3 pos, glm::vec3 rot, const std::string &obj, const Material *mat);
     Model(Model&&) = default;
     ~Model();
 
@@ -19,4 +20,5 @@ private:
     glm::vec3 m_pos{ 0.f }, m_rot{ 0.f };
 
     std::vector<std::unique_ptr<Mesh>> m_meshes;
+    const Material *m_mat = nullptr;
 };
