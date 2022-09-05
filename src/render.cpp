@@ -15,7 +15,7 @@ Renderer::Renderer(int w, int h)
     Material mat(glm::vec3(1.f, 0.f, 0.f), 50.f);
     m_sc.add_sphere(Sphere(glm::vec3(10.f, 0.f, 0.f), 1.f, mat));
 
-    m_sc.add_light(Light(glm::vec3(8.f, -6.f, 2.f), glm::vec3(.2f, .2f, .2f), glm::vec3(.5f, .5f, .5f), glm::vec3(.8f, .8f, .8f)));
+    m_sc.add_light(Light(glm::vec3(8.f, -4.f, 2.f), glm::vec3(.2f, .2f, .2f), glm::vec3(.5f, .5f, .5f), glm::vec3(.8f, .8f, .8f)));
 }
 
 Renderer::~Renderer()
@@ -57,7 +57,7 @@ void Renderer::cast_rays(std::vector<glm::vec3> &frame)
             frame[y * m_w + z] = cast_ray(glm::vec3(0.f, 0.f, 0.f), dir);
         }
 
-        if (y % 10 == 0)
+        if (y % 100 == 0)
         {
             fmt::print("\rFinished {}/{} rows", y, m_h);
             std::fflush(stdout);
