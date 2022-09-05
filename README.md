@@ -1,2 +1,2 @@
 # pathtracer
-Better graphics
+Improved version of raytrace
