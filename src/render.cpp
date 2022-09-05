@@ -14,8 +14,8 @@ Renderer::Renderer(int w, int h)
     : m_w(w), m_h(h), m_mesh_mat(glm::vec3(0.f, 0.f, 1.f), 50.f)
 {
     Material mat(glm::vec3(1.f, 0.f, 0.f), 50.f);
-    m_sc.add_sphere(Sphere(glm::vec3(10.f, 0.f, 0.f), 1.f, mat));
-    m_sc.add_model(Model(glm::vec3(10.f, 0.f, 2.f), glm::vec3(0.f), "res/cube.obj", &m_mesh_mat));
+    // m_sc.add_sphere(Sphere(glm::vec3(10.f, 0.f, 0.f), 1.f, mat));
+    m_sc.add_model(Model(glm::vec3(10.f, 0.f, 0.f), glm::vec3(0.f), "res/cube.obj", &m_mesh_mat));
 
     m_sc.add_light(Light(glm::vec3(8.f, -4.f, 2.f), glm::vec3(1.f, 1.f, .7f), 1.f));
 }
@@ -56,7 +56,7 @@ void Renderer::cast_rays(std::vector<glm::vec3> &frame)
             float va = ((float)y / m_h) * fov - (fov / 2.f);
 
             glm::vec3 dir = glm::normalize(glm::vec3(1.f, va, ha));
-            frame[y * m_w + z] = cast_ray(glm::vec3(0.f, 0.f, 0.f), dir);
+            frame[y * m_w + z] = cast_ray(Ray(glm::vec3(0.f, 0.f, 0.f), dir));
         }
 
         if (y % 100 == 0)
@@ -67,16 +67,15 @@ void Renderer::cast_rays(std::vector<glm::vec3> &frame)
     }
 }
 
-glm::vec3 Renderer::cast_ray(glm::vec3 orig, glm::vec3 dir)
+glm::vec3 Renderer::cast_ray(const Ray &ray)
 {
     RayIntersection data;
-    data.orig = orig;
-    data.dir = dir;
+    data.ray = ray;
 
-    if (!m_sc.cast_ray(orig, dir, &data.hit, &data.norm, &data.mat))
-        return volumetric(orig, dir);
+    if (!m_sc.cast_ray(ray, &data.hit, &data.norm, &data.mat))
+        return volumetric(ray);
 
-    return phong(data) + volumetric(orig, dir);
+    return phong(data) + volumetric(ray);
 }
 
 glm::vec3 Renderer::phong(const RayIntersection &data)
@@ -97,7 +96,7 @@ glm::vec3 Renderer::phong(const RayIntersection &data)
         glm::vec3 shadow_dir = glm::normalize(light.pos - shadow_orig);
 
         glm::vec3 shadow_hit;
-        if (m_sc.cast_ray(shadow_orig, shadow_dir, &shadow_hit, 0, 0))
+        if (m_sc.cast_ray(Ray(shadow_orig, shadow_dir), &shadow_hit, 0, 0))
         {
             if (glm::distance(shadow_hit, shadow_orig) < glm::distance(light.pos, shadow_orig))
                 continue;
@@ -109,7 +108,7 @@ glm::vec3 Renderer::phong(const RayIntersection &data)
         glm::vec3 diffuse = light.color * light.in * l_diffuse * diff * data.mat->col;
 
         // specular
-        glm::vec3 vdir = glm::normalize(data.orig - data.hit);
+        glm::vec3 vdir = glm::normalize(data.ray.orig - data.hit);
         glm::vec3 refdir = glm::reflect(-ldir, data.norm);
         float spec = std::pow(std::max(glm::dot(vdir, refdir), 0.f), data.mat->shininess);
         glm::vec3 specular = light.color * light.in * l_specular * spec * data.mat->col;
@@ -120,14 +119,14 @@ glm::vec3 Renderer::phong(const RayIntersection &data)
     return res;
 }
 
-glm::vec3 Renderer::volumetric(glm::vec3 orig, glm::vec3 dir)
+glm::vec3 Renderer::volumetric(const Ray &ray)
 {
     glm::vec3 res(0.f);
 
-    glm::vec3 pos = orig;
+    glm::vec3 pos = ray.orig;
     for (size_t i = 0; i < 300; ++i)
     {
-        pos += dir / 15.f;
+        pos += ray.dir / 15.f;
         if (pos.y >= m_sc.floor_y())
             break;
 
@@ -138,7 +137,7 @@ glm::vec3 Renderer::volumetric(glm::vec3 orig, glm::vec3 dir)
 
             // Detect if under shadow
             glm::vec3 shadow_dir = glm::normalize(light.pos - pos);
-            if (!m_sc.cast_ray(pos, shadow_dir, 0, 0, 0))
+            if (!m_sc.cast_ray(Ray(pos, shadow_dir), 0, 0, 0))
                 res += light.in * (light.color / 40.f * attn);
             else
                 res -= light.color / 1000.f;

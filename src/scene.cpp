@@ -26,7 +26,7 @@ void Scene::add_light(const Light &l)
     m_lights.emplace_back(l);
 }
 
-bool Scene::cast_ray(glm::vec3 orig, glm::vec3 dir, glm::vec3 *hit, glm::vec3 *norm, const Material **mat)
+bool Scene::cast_ray(const Ray &ray, glm::vec3 *hit, glm::vec3 *norm, const Material **mat)
 {
     float nearest = 1000.f;
 
@@ -34,17 +34,17 @@ bool Scene::cast_ray(glm::vec3 orig, glm::vec3 dir, glm::vec3 *hit, glm::vec3 *n
     {
         float t;
 
-        if (s.ray_intersect(orig, dir, &t) && t < nearest)
+        if (s.ray_intersect(ray, &t) && t < nearest)
         {
             nearest = t;
-            if (hit) *hit = orig + dir * t;
+            if (hit) *hit = ray.forward(t);
             if (norm) *norm = glm::normalize(*hit - s.center());
             if (mat) *mat = &s.mat();
         }
     }
 
     // In case no sphere is intersected
-    glm::vec3 end = orig + nearest * dir;
+    glm::vec3 end = ray.forward(nearest);
 
     if (end.y >= m_floor_y)
     {

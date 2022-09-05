@@ -2,6 +2,7 @@
 #include "sphere.h"
 #include "light.h"
 #include "model.h"
+#include "util.h"
 #include <vector>
 
 class Scene
@@ -15,7 +16,7 @@ public:
     void add_light(const Light &l);
 
     // Cast ray considering all objects in scene
-    bool cast_ray(glm::vec3 orig, glm::vec3 dir, glm::vec3 *hit, glm::vec3 *norm, const Material **mat);
+    bool cast_ray(const Ray &ray, glm::vec3 *hit, glm::vec3 *norm, const Material **mat);
 
     const std::vector<Light> &lights() const { return m_lights; }
     float floor_y() const { return m_floor_y; }

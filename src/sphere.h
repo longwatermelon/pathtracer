@@ -1,5 +1,6 @@
 #pragma once
 #include "light.h"
+#include "util.h"
 #include <glm/glm.hpp>
 
 class Sphere
@@ -8,8 +9,8 @@ public:
     Sphere(glm::vec3 c, float r, const Material &mat);
     ~Sphere();
 
-    bool ray_intersect(glm::vec3 orig, glm::vec3 dir, float *t) const;
-    bool ray_intersect(glm::vec3 orig, glm::vec3 dir, float *t1, float *t2) const;
+    bool ray_intersect(const Ray &ray, float *t) const;
+    bool ray_intersect(const Ray &ray, float *t1, float *t2) const;
 
     glm::vec3 center() const { return m_center; }
     float radius() const { return m_r; }

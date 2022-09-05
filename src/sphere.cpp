@@ -10,10 +10,10 @@ Sphere::~Sphere()
 {
 }
 
-bool Sphere::ray_intersect(glm::vec3 orig, glm::vec3 dir, float *t) const
+bool Sphere::ray_intersect(const Ray &ray, float *t) const
 {
     float t1 = 0.f, t2 = 0.f;
-    ray_intersect(orig, dir, &t1, &t2);
+    ray_intersect(ray, &t1, &t2);
 
     if (t1 <= 1e-4f) return false;
 
@@ -23,11 +23,11 @@ bool Sphere::ray_intersect(glm::vec3 orig, glm::vec3 dir, float *t) const
     return true;
 }
 
-bool Sphere::ray_intersect(glm::vec3 orig, glm::vec3 dir, float *t1, float *t2) const
+bool Sphere::ray_intersect(const Ray &ray, float *t1, float *t2) const
 {
-    glm::vec3 co = orig - m_center;
-    float a = glm::dot(dir, dir);
-    float b = glm::dot(co, dir) * 2.f;
+    glm::vec3 co = ray.orig - m_center;
+    float a = glm::dot(ray.dir, ray.dir);
+    float b = glm::dot(co, ray.dir) * 2.f;
     float c = glm::dot(co, co) - m_r * m_r;
 
     float discrim = b * b - 4.f * a * c;
