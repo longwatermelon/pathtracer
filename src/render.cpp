@@ -15,7 +15,7 @@ Renderer::Renderer(int w, int h)
     Material mat(glm::vec3(1.f, 0.f, 0.f), 50.f);
     m_sc.add_sphere(Sphere(glm::vec3(10.f, 0.f, 0.f), 1.f, mat));
 
-    m_sc.add_light(Light(glm::vec3(8.f, -4.f, 2.f), glm::vec3(1.f, 1.f, 1.f), .2f, .5f, .8f));
+    m_sc.add_light(Light(glm::vec3(8.f, -4.f, 2.f), glm::vec3(1.f, 1.f, .7f), 1.f));
 }
 
 Renderer::~Renderer()
@@ -81,10 +81,14 @@ glm::vec3 Renderer::phong(const RayIntersection &data)
 {
     glm::vec3 res(0.f);
 
+    float l_ambient = .2f;
+    float l_diffuse = .5f;
+    float l_specular = .8f;
+
     for (const auto &light : m_sc.lights())
     {
         // ambient
-        res += light.color * light.ambient * data.mat->col;
+        res += light.color * light.in * l_ambient * data.mat->col;
 
         // shadows (If shadow, only show ambient)
         glm::vec3 shadow_orig = data.hit + data.norm / 1e3f;
@@ -100,13 +104,13 @@ glm::vec3 Renderer::phong(const RayIntersection &data)
         // diffuse
         glm::vec3 ldir = glm::normalize(light.pos - data.hit);
         float diff = std::max(glm::dot(data.norm, ldir), 0.f);
-        glm::vec3 diffuse = light.color * light.diffuse * diff * data.mat->col;
+        glm::vec3 diffuse = light.color * light.in * l_diffuse * diff * data.mat->col;
 
         // specular
         glm::vec3 vdir = glm::normalize(data.orig - data.hit);
         glm::vec3 refdir = glm::reflect(-ldir, data.norm);
         float spec = std::pow(std::max(glm::dot(vdir, refdir), 0.f), data.mat->shininess);
-        glm::vec3 specular = light.color * light.specular * spec * data.mat->col;
+        glm::vec3 specular = light.color * light.in * l_specular * spec * data.mat->col;
 
         res += diffuse + specular;
     }
@@ -133,7 +137,7 @@ glm::vec3 Renderer::volumetric(glm::vec3 orig, glm::vec3 dir)
             // Detect if under shadow
             glm::vec3 shadow_dir = glm::normalize(light.pos - pos);
             if (!m_sc.cast_ray(pos, shadow_dir, 0, 0, 0))
-                res += light.color / 40.f * attn;
+                res += light.in * (light.color / 40.f * attn);
             else
                 res -= light.color / 1000.f;
         }

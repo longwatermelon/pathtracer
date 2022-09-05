@@ -3,12 +3,11 @@
 
 struct Light
 {
-    Light(glm::vec3 pos, glm::vec3 color, float ambient, float diffuse, float specular)
-        : pos(pos), color(color), ambient(ambient), diffuse(diffuse), specular(specular) {}
+    Light(glm::vec3 pos, glm::vec3 color, float intensity)
+        : pos(pos), color(color), in(intensity) {}
 
-    glm::vec3 pos;
-    glm::vec3 color;
-    float ambient, diffuse, specular;
+    glm::vec3 pos, color;
+    float in;
 };
 
 struct Material
